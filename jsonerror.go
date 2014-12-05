@@ -18,11 +18,11 @@ func (self JSONError) Error() string {
 	finalString := fmt.Sprintf("code: %d", self.code)
 
 	if self.error != "" {
-		finalString = finalString + fmt.Sprintf("error: %s", self.error)
+		finalString = finalString + fmt.Sprintf(" error: %s", self.error)
 	}
 
 	if self.message != "" {
-		finalString = finalString + fmt.Sprintf("message: %s", self.message)
+		finalString = finalString + fmt.Sprintf(" message: %s", self.message)
 	}
 
 	return finalString
