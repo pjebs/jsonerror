@@ -1,4 +1,4 @@
-JSONError for Golang
+JSONError for Golang [![GoDoc](http://godoc.org/github.com/pjebs/jsonerror?status.svg)](http://godoc.org/github.com/pjebs/jsonerror) 
 =============
 
 This package is for adding some structure to your error messages.
@@ -33,6 +33,10 @@ func main() {
 		fmt.Print(err)
 	}
 }
+
+//Or alternatively
+
+panic(errors.New("failed"))
 
 ```
 
@@ -149,6 +153,12 @@ NB: The domain parameter is not outputted by `Render()` (for generating JSON for
 **How do I use this package?**
 
 When you want to return an error (e.g. from a function), just return a `JSONError` struct. See the example code above.
+
+Or you can use it with `panic()`.
+
+```go
+panic(jsonerror.New(1, "error", "message"))
+```
 
 **What are the error codes?**
 
