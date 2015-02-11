@@ -12,7 +12,7 @@ Install
 go get -u github.com/pjebs/jsonerror
 ```
 
-Optional - if you want to output JSON formatted error messages (e.g. for REST API)
+Optional - if you want to output JSON formatted error messages (e.g. for REST API):
 
 ```shell
 go get -u gopkg.in/unrolled/render.v1
