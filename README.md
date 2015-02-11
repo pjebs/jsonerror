@@ -110,7 +110,7 @@ func (self JSONError) Render() map[string]string {
 Formats JSONError struct so it can be used by [gopkg.in/unrolled/render.v1](https://github.com/unrolled/render) package to generate JSON output.
 
 
-Output JSON formatted error message (i.e. REST API Webserver)
+Output JSON formatted error message (i.e. REST API Server response)
 ----------
 
 ```go
@@ -138,7 +138,12 @@ func main() {
   	n.Run(":3000")
 }
 
+```
 
+For the above example, the web server will respond with a HTTP Status Code of 401 (Status Unauthorized) and a JSON response:
+
+```json
+{ "code": "12", "error": "Unauthorized Access", "message": "Please log in first to access this site" }
 ```
 
 FAQ
