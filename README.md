@@ -1,7 +1,7 @@
 JSONError for Golang [![GoDoc](http://godoc.org/github.com/pjebs/jsonerror?status.svg)](http://godoc.org/github.com/pjebs/jsonerror) 
 =============
 
-This package is for adding some structure to your error messages.
+This package is for adding some structure to your error messages. This makes error-handling, debugging and diagnosis for all your Go projects a lot more elegant and simpler. Use it wherever `error` type is required.
 
 It utilizes the fact that builtin [`type error`](http://golang.org/pkg/builtin/#error) is actually an `interface.` 
 
