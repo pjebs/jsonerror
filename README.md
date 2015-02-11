@@ -43,7 +43,7 @@ Using this package
 ```go
 import (
 	e "github.com/pjebs/jsonerror" //aliased for ease of usage
-	"math"                         //For realSquareRoot() example function
+	"math"                         //For realSquareRoot() example function below
 )
 
 //EXAMPLE 1 - Creating a JSONError Struct
@@ -69,7 +69,7 @@ func realSquareRoot(n float64) (float64, error) {
 func main() {
 
 	s, err := realSquareRoot(12.0)
-	if err != nil {
+	if err == nil {
 		//s is Valid answer
 	} else {
 		if err.Code == 1 {
