@@ -146,7 +146,7 @@ FAQ:
 
 **What is the domain parameter?**
 
-The domain parameter is optional. It allows you to distinguish between same error codes. That way different packages (or different parts of your own project) can use the same error codes but can still be differentiated by the domain identifier.
+The domain parameter is optional. It allows you to distinguish between same error codes. That way different packages (or different parts of your own project) can use the same error codes for different purposes but can still be differentiated by the domain identifier.
 
 NB: The domain parameter is not outputted by `Render()` (for generating JSON formatted output)
 
