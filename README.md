@@ -59,7 +59,7 @@ err := e.New(1, "Square root of negative number is prohibited", "Please make num
 //Custom function
 func realSquareRoot(n float64) (float64, error) {
 	if n < 0 {
-		return nil, e.New(1, "Square root of negative number is prohibited", "Please make number positive or zero")
+		return 0, e.New(1, "Square root of negative number is prohibited", "Please make number positive or zero")
 	} else {
 		return math.Sqrt(n), nil
 	}
@@ -97,6 +97,13 @@ func New(code int, error string, message string, domain ...string) *JSONError
 `message string` - A more detailed description that may be customized for the particular circumstances. May also provide extra information.
 
 `domain ...string` - *Optional* It allows you to distinguish between same `error codes`. Only 1 `domain` string is allowed.
+
+
+```go
+func (self JSONError) Render() map[string]string {
+```
+
+Formats JSONError struct so it can be used by [gopkg.in/unrolled/render.v1](https://github.com/unrolled/render) package to generate JSON output.
 
 
 Output JSON formatted error message (i.e. REST API Webserver)
@@ -154,4 +161,4 @@ Final Notes:
 If you found this package useful, please **Star** it on github. Feel free to fork or provide pull requests. Any bug reports will be warmly received.
 
 
-[PJ Engineering and Business Solutions Pty. Ltd](http://www.pjebs.com.au)
+[PJ Engineering and Business Solutions Pty. Ltd.](http://www.pjebs.com.au)
