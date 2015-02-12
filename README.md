@@ -44,7 +44,7 @@ panic(errors.New("failed"))
 ```
 
 
-Using this package
+Using this package instead
 -----
 
 ```go
