@@ -53,9 +53,8 @@ import (
 	"math"                         //For realSquareRoot() example function below
 )
 
-//EXAMPLE 1 - Creating a JSONError Struct
+//EXAMPLE 1 - Creating a JE Struct
 
-//Create a json error struct
 err := e.New(1, "Square root of negative number is prohibited", "Please make number positive or zero") //Domain is optional and not included here
 
 //Or  
@@ -79,7 +78,7 @@ func main() {
 	if err == nil {
 		//s is Valid answer
 	} else {
-		if err.Code == 1 {
+		if err.(e.JE).Code == 1 {
 			//Square root of negative number
 		} else {
 			//Unknown error
@@ -94,7 +93,7 @@ Methods
 --------
 
 ```go
-func New(code int, error string, message string, domain ...string) *JSONError
+func New(code int, error string, message string, domain ...string) *JE
 ```
 
 `code int` - Error code. Arbitrary and set by *fiat*. Different types of errors should have an unique `error code` in your project.
@@ -107,10 +106,10 @@ func New(code int, error string, message string, domain ...string) *JSONError
 
 
 ```go
-func (self JSONError) Render() map[string]string {
+func (this JE) Render() map[string]string {
 ```
 
-Formats JSONError struct so it can be used by [gopkg.in/unrolled/render.v1](https://github.com/unrolled/render) package to generate JSON output.
+Formats `JE` (JSONError) struct so it can be used by [gopkg.in/unrolled/render.v1](https://github.com/unrolled/render) package to generate JSON output.
 
 
 Output JSON formatted error message (i.e. REST API Server response)
@@ -143,10 +142,10 @@ func main() {
 
 ```
 
-For the above example, the web server will respond with a HTTP Status Code of 401 (Status Unauthorized) and a JSON response:
+For the above example, the web server will respond with a HTTP Status Code of 401 (Status Unauthorized), Content-Type as application/json and a JSON response:
 
 ```json
-{ "code": "12", "error": "Unauthorized Access", "message": "Please log in first to access this site" }
+{"code":"12","error":"Unauthorized Access","message":"Please log in first to access this site"}
 ```
 
 FAQ
@@ -160,7 +159,7 @@ NB: The domain parameter is not outputted by `Render()` (for generating JSON for
 
 **How do I use this package?**
 
-When you want to return an error (e.g. from a function), just return a `JSONError` struct. See the example code above.
+When you want to return an error (e.g. from a function), just return a `JE` struct. See the example code above.
 
 Or you can use it with `panic()`.
 
