@@ -18,9 +18,9 @@ type JE struct {
 //Domain is optional but can be at most 1 string.
 func New(code int, error string, message string, domain ...string) JE {
 	if len(domain) == 0 {
-		return &JE{Code: code, error: error, message: message}
+		return JE{Code: code, error: error, message: message}
 	} else {
-		return &JE{Code: code, error: error, message: message, Domain: domain[0]}
+		return JE{Code: code, error: error, message: message, Domain: domain[0]}
 	}
 }
 
