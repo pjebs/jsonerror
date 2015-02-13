@@ -93,7 +93,7 @@ Methods
 --------
 
 ```go
-func New(code int, error string, message string, domain ...string) *JE
+func New(code int, error string, message string, domain ...string) JE
 ```
 
 `code int` - Error code. Arbitrary and set by *fiat*. Different types of errors should have an unique `error code` in your project.
