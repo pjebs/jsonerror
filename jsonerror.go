@@ -27,18 +27,18 @@ func New(code int, error string, message string, domain ...string) JE {
 //Generates a string that neatly formats the contents of JE struct.
 //Useful with panic() because JSONError satisfies error interface.
 func (this JE) Error() string {
-	finalString := fmt.Sprintf("code: %d", this.Code)
+	finalString := fmt.Sprintf("[code]: %d", this.Code)
 
 	if this.error != "" {
-		finalString = finalString + fmt.Sprintf(" error: %s", this.error)
+		finalString = finalString + fmt.Sprintf(" [error]: %s", this.error)
 	}
 
 	if this.message != "" {
-		finalString = finalString + fmt.Sprintf(" message: %s", this.message)
+		finalString = finalString + fmt.Sprintf(" [message]: %s", this.message)
 	}
 
 	if this.Domain != "" {
-		finalString = finalString + fmt.Sprintf(" domain: %s", this.Domain)
+		finalString = finalString + fmt.Sprintf(" [domain]: %s", this.Domain)
 	}
 
 	return finalString
