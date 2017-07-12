@@ -76,7 +76,7 @@ func (ec *ErrorCollection) AddErrorCollection(errs *ErrorCollection) {
 }
 
 // Return a list of all contained errors
-func (ec *ErrorCollection) Error() string {
+func (ec ErrorCollection) Error() string {
 	ec.lock.RLock()
 	defer ec.lock.RUnlock()
 	str := ""
