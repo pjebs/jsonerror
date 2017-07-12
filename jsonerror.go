@@ -4,6 +4,16 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"time"
+)
+
+// ErrorCollection can be configured to allow duplicates.
+type DuplicatesOptions int
+
+const (
+	AllowDuplicates                 DuplicatesOptions = 0
+	RejectDuplicatesIgnoreTimestamp DuplicatesOptions = 1 //Ignore timestamp information in JE struct
+	RejectDuplicates                DuplicatesOptions = 2
 )
 
 // DefaultErrorFormatter represents the default formatter for displaying the collection
@@ -15,7 +25,7 @@ var DefaultErrorFormatter = func(i int, err error, str *string) {
 // ErrorCollection allows multiple errors to be accumulated and then returned as a single error.
 // ErrorCollection can be safely used by concurrent go-routines.
 type ErrorCollection struct {
-	RemoveDuplicates bool
+	RemoveDuplicates DuplicatesOptions
 	Errors           []error
 	Formatter        func(i int, err error, str *string)
 	lock             sync.RWMutex
@@ -24,8 +34,8 @@ type ErrorCollection struct {
 // Creates a new empty ErrorCollection.
 // When removeDuplicates is set, any duplicate error messages are discarded
 // and not appended to the collection
-func NewErrorCollection(removeDuplicates ...bool) ErrorCollection {
-	ec := ErrorCollection{}
+func NewErrorCollection(removeDuplicates ...DuplicatesOptions) *ErrorCollection {
+	ec := &ErrorCollection{}
 	ec.Errors = []error{}
 	ec.Formatter = DefaultErrorFormatter
 	if len(removeDuplicates) != 0 {
@@ -36,11 +46,52 @@ func NewErrorCollection(removeDuplicates ...bool) ErrorCollection {
 
 // Append an error to the error collection without locking
 func (ec *ErrorCollection) addError(err error) {
-	if ec.RemoveDuplicates {
+	if ec.RemoveDuplicates != AllowDuplicates {
 		//Don't append if err is a duplicate
-		for _, containedErr := range ec.Errors {
-			if reflect.DeepEqual(containedErr, err) {
-				return
+		for i, containedErr := range ec.Errors {
+
+			var je1 *JE
+			var je2 *JE
+
+			s, ok := err.(JE)
+			if ok {
+				je1 = &s
+			} else {
+				s, ok := err.(*JE)
+				if ok {
+					je1 = s
+				}
+			}
+
+			_, ok = containedErr.(JE)
+			if ok {
+				t := (ec.Errors[i]).(JE)
+				je2 = &t
+			} else {
+				_, ok := containedErr.(*JE)
+				if ok {
+					je2 = (ec.Errors[i]).(*JE)
+				}
+			}
+
+			if je1 != nil && je2 != nil {
+				//Don't use Reflection since both are JE structs
+				if (*je1).Code == (*je2).Code && (*je1).Domain == (*je2).Domain && (*je1).error == (*je2).error && (*je1).message == (*je2).message {
+					if ec.RemoveDuplicates == RejectDuplicates {
+						if (*je1).time.Equal((*je2).time) {
+							//Both JE structs are 100% identical including timestamp
+							return
+						}
+					} else {
+						//We don't care about timestamps
+						return
+					}
+				}
+			} else {
+				//Use Reflection
+				if reflect.DeepEqual(containedErr, err) {
+					return
+				}
 			}
 		}
 	}
@@ -76,7 +127,11 @@ func (ec *ErrorCollection) AddErrorCollection(errs *ErrorCollection) {
 }
 
 // Return a list of all contained errors
-func (ec ErrorCollection) Error() string {
+func (ec *ErrorCollection) Error() string {
+	if ec.Formatter == nil {
+		return ""
+	}
+
 	ec.lock.RLock()
 	defer ec.lock.RUnlock()
 	str := ""
@@ -96,16 +151,17 @@ type JE struct {
 	Domain  string
 	error   string
 	message string
+	time    time.Time
 }
 
 //Creates a new JE struct.
 //Domain is optional but can be at most 1 string.
 func New(code int, error string, message string, domain ...string) JE {
-	if len(domain) == 0 {
-		return JE{Code: code, error: error, message: message}
-	} else {
-		return JE{Code: code, error: error, message: message, Domain: domain[0]}
+	j := JE{Code: code, error: error, message: message, time: time.Now().UTC()}
+	if len(domain) != 0 {
+		j.Domain = domain[0]
 	}
+	return j
 }
 
 //Generates a string that neatly formats the contents of JE struct.
@@ -126,6 +182,11 @@ func (j JE) Error() string {
 	}
 
 	return finalString
+}
+
+//Return the time the JE struct was created
+func (j JE) Time() time.Time {
+	return j.time
 }
 
 //For use with package: "gopkg.in/unrolled/render.v1".
