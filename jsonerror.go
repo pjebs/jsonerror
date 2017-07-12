@@ -8,12 +8,12 @@ import (
 )
 
 // ErrorCollection can be configured to allow duplicates.
-type DuplicatesOptions int
+type DuplicatationOptions int
 
 const (
-	AllowDuplicates                 DuplicatesOptions = 0
-	RejectDuplicatesIgnoreTimestamp DuplicatesOptions = 1 //Ignore timestamp information in JE struct
-	RejectDuplicates                DuplicatesOptions = 2
+	AllowDuplicates                 DuplicatationOptions = 0
+	RejectDuplicatesIgnoreTimestamp DuplicatationOptions = 1 //Ignore timestamp information in JE struct
+	RejectDuplicates                DuplicatationOptions = 2
 )
 
 // DefaultErrorFormatter represents the default formatter for displaying the collection
@@ -25,28 +25,28 @@ var DefaultErrorFormatter = func(i int, err error, str *string) {
 // ErrorCollection allows multiple errors to be accumulated and then returned as a single error.
 // ErrorCollection can be safely used by concurrent go-routines.
 type ErrorCollection struct {
-	RemoveDuplicates DuplicatesOptions
-	Errors           []error
-	Formatter        func(i int, err error, str *string)
-	lock             sync.RWMutex
+	DuplicatationOptions DuplicatationOptions
+	Errors               []error
+	Formatter            func(i int, err error, str *string)
+	lock                 sync.RWMutex
 }
 
 // Creates a new empty ErrorCollection.
-// When removeDuplicates is set, any duplicate error messages are discarded
+// When `dup` is set, any duplicate error message is discarded
 // and not appended to the collection
-func NewErrorCollection(removeDuplicates ...DuplicatesOptions) *ErrorCollection {
+func NewErrorCollection(dup ...DuplicatationOptions) *ErrorCollection {
 	ec := &ErrorCollection{}
 	ec.Errors = []error{}
 	ec.Formatter = DefaultErrorFormatter
-	if len(removeDuplicates) != 0 {
-		ec.RemoveDuplicates = removeDuplicates[0]
+	if len(dup) != 0 {
+		ec.DuplicatationOptions = dup[0]
 	}
 	return ec
 }
 
 // Append an error to the error collection without locking
 func (ec *ErrorCollection) addError(err error) {
-	if ec.RemoveDuplicates != AllowDuplicates {
+	if ec.DuplicatationOptions != AllowDuplicates {
 		//Don't append if err is a duplicate
 		for i, containedErr := range ec.Errors {
 
@@ -77,7 +77,7 @@ func (ec *ErrorCollection) addError(err error) {
 			if je1 != nil && je2 != nil {
 				//Don't use Reflection since both are JE structs
 				if (*je1).Code == (*je2).Code && (*je1).Domain == (*je2).Domain && (*je1).error == (*je2).error && (*je1).message == (*je2).message {
-					if ec.RemoveDuplicates == RejectDuplicates {
+					if ec.DuplicatationOptions == RejectDuplicates {
 						if (*je1).time.Equal((*je2).time) {
 							//Both JE structs are 100% identical including timestamp
 							return
