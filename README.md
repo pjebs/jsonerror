@@ -6,12 +6,10 @@ This package is for adding some structure to your error messages. This makes err
 It utilizes the fact that built-in [`type error`](http://golang.org/pkg/builtin/#error) is actually an `interface.`
 
 
+
 **REFER TO GODOC FOR DOCUMENTATION FOR ErrorCollection capabilities**
 
 ErrorCollection allows for accumulation of multiple errors from concurrent go-routines.
-
-
-Since Go is a new programming language, I have made the documentation and code as easy to understand as possible. Studying the code can be a great learning experience.
 
 
 Install

@@ -66,7 +66,7 @@ func (ec *ErrorCollection) AddErrors(errs ...error) {
 }
 
 // Append an entire ErrorCollection to the receiver error collection
-func (ec *ErrorCollection) AddErrorCollection(errs ErrorCollection) {
+func (ec *ErrorCollection) AddErrorCollection(errs *ErrorCollection) {
 	ec.lock.Lock()
 	defer ec.lock.Unlock()
 
