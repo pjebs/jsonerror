@@ -6,11 +6,12 @@ This package is for adding some structure to your error messages. This makes err
 It utilizes the fact that built-in [`type error`](http://golang.org/pkg/builtin/#error) is actually an `interface.`
 
 
-The package also contains the ErrorCollection struct which allows for accumulation of multiple errors.
+The package also contains the **ErrorCollection** struct which allows for accumulation of multiple errors.
 It is safe to use from multiple concurrent goroutines unlike other comparable packages.
 
 Please **Star** this package so I can add it to [awesome-go](https://github.com/avelino/awesome-go).
 
+Refer to documentation on [GoDoc](http://godoc.org/github.com/pjebs/jsonerror) because the information below is a small subset of all the features.
 
 
 Install
