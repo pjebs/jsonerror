@@ -55,23 +55,23 @@ Using this package instead
 
 ```go
 import (
-	e "github.com/pjebs/jsonerror" //aliased for ease of usage
-	"math"                         //For realSquareRoot() example function below
+	errors "github.com/pjebs/jsonerror" //aliased for ease of usage
+	"math"                              //For realSquareRoot() example function below
 )
 
 //EXAMPLE 1 - Creating a JE Struct
 
-err := e.New(1, "Square root of negative number is prohibited", "Please make number positive or zero") //Domain is optional and not included here
+err := errors.New(1, "Square root of negative number is prohibited", "Please make number positive or zero") //Domain is optional and not included here
 
 //Or  
-err := e.New(1, "Square root of negative number is prohibited", "Please make number positive or zero", "com.github.pjebs.jsonerror")
+err := errors.New(1, "Square root of negative number is prohibited", "Please make number positive or zero", "com.github.pjebs.jsonerror")
 
 //EXAMPLE 2 - Practical Example
 
 //Custom function
 func realSquareRoot(n float64) (float64, error) {
 	if n < 0 {
-		return 0, e.New(1, "Square root of negative number is prohibited", "Please make number positive or zero")
+		return 0, errors.New(1, "Square root of negative number is prohibited", "Please make number positive or zero")
 	} else {
 		return math.Sqrt(n), nil
 	}
@@ -82,7 +82,7 @@ func main() {
 
 	s, err := realSquareRoot(12.0)
 	if err != nil {
-		if err.(e.JE).Code == 1 {
+		if err.(errors.JE).Code == 1 {
 			//Square root of negative number
 		} else {
 			//Unknown error
@@ -125,7 +125,7 @@ Output JSON formatted error message (i.e. REST API Server response)
 ```go
 import (
 	"github.com/codegangsta/negroni" //Using Negroni (https://github.com/codegangsta/negroni)
-	e "github.com/pjebs/jsonerror"
+	errors "github.com/pjebs/jsonerror"
 	"gopkg.in/unrolled/render.v1"
 	"net/http"
 )
@@ -134,7 +134,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 
-		err := e.New(12, "Unauthorized Access", "Please log in first to access this site")
+		err := errors.New(12, "Unauthorized Access", "Please log in first to access this site")
 
     	r := render.New(render.Options{})
 		r.JSON(w, http.StatusUnauthorized, err.Render())
