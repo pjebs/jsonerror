@@ -23,7 +23,7 @@ var DefaultErrorFormatter = func(i int, err error, str *string) {
 }
 
 // ErrorCollection allows multiple errors to be accumulated and then returned as a single error.
-// ErrorCollection can be safely used by concurrent go-routines.
+// ErrorCollection can be safely used by concurrent goroutines.
 type ErrorCollection struct {
 	DuplicatationOptions DuplicatationOptions
 	Errors               []error
@@ -98,7 +98,8 @@ func (ec *ErrorCollection) addError(err error) {
 	ec.Errors = append(ec.Errors, err)
 }
 
-// Append an error to the error collection
+// AddError appends an error to the error collection.
+// It is safe to use from multiple concurrent goroutines.
 func (ec *ErrorCollection) AddError(err error) {
 	ec.lock.Lock()
 	defer ec.lock.Unlock()
@@ -106,7 +107,8 @@ func (ec *ErrorCollection) AddError(err error) {
 	ec.addError(err)
 }
 
-// Append multiple errors to the error collection
+// AddErrors appends multiple errors to the error collection.
+// It is safe to use from multiple concurrent goroutines.
 func (ec *ErrorCollection) AddErrors(errs ...error) {
 	ec.lock.Lock()
 	defer ec.lock.Unlock()
@@ -116,7 +118,8 @@ func (ec *ErrorCollection) AddErrors(errs ...error) {
 	}
 }
 
-// Append an entire ErrorCollection to the receiver error collection
+// AddErrorCollection appends an entire ErrorCollection to the receiver error collection.
+// It is safe to use from multiple concurrent goroutines.
 func (ec *ErrorCollection) AddErrorCollection(errs *ErrorCollection) {
 	ec.lock.Lock()
 	defer ec.lock.Unlock()
@@ -126,7 +129,8 @@ func (ec *ErrorCollection) AddErrorCollection(errs *ErrorCollection) {
 	}
 }
 
-// Return a list of all contained errors
+// Error return a list of all contained errors.
+// The output can be formatted by setting a custom Formatter.
 func (ec *ErrorCollection) Error() string {
 	if ec.Formatter == nil {
 		return ""
@@ -143,19 +147,38 @@ func (ec *ErrorCollection) Error() string {
 	return str
 }
 
-//Struct that contains the Code, Domain, Error and Message.
-//Only Code and Domain are exported to encourage usage of the New(...) method to set the message and error.
-//JE is shorthand for JSONError.
-type JE struct {
-	Code    int
-	Domain  string
-	error   string
-	message string
-	time    time.Time
+// IsNil returns whether an error is nil or not.
+// It can be used with ErrorCollection or generic errors
+func IsNil(err error) bool {
+	switch v := err.(type) {
+	case *ErrorCollection:
+		if len(v.Errors) == 0 {
+			return true
+		} else {
+			return false
+		}
+	default:
+		if err == nil {
+			return true
+		} else {
+			return false
+		}
+	}
 }
 
-//Creates a new JE struct.
-//Domain is optional but can be at most 1 string.
+// JE allows errors to contain Code, Domain, Error and Message information.
+// Only Code and Domain are exported so that once a JE struct is created, the key elements are static.
+type JE struct {
+	Code        int
+	Domain      string
+	error       string
+	message     string
+	time        time.Time //Displayed as Unix timestamp (number of nanoseconds elapsed since January 1, 1970 UTC)
+	DisplayTime bool
+}
+
+// New creates a new JE struct.
+// Domain is optional but can be at most 1 string.
 func New(code int, error string, message string, domain ...string) JE {
 	j := JE{Code: code, error: error, message: message, time: time.Now().UTC()}
 	if len(domain) != 0 {
@@ -164,8 +187,18 @@ func New(code int, error string, message string, domain ...string) JE {
 	return j
 }
 
-//Generates a string that neatly formats the contents of JE struct.
-//Useful with panic() because JSONError satisfies error interface.
+// NewAndDisplayTime creates a new JE struct and configures it to display the timestamp.
+// Domain is optional but can be at most 1 string.
+func NewAndDisplayTime(code int, error string, message string, domain ...string) JE {
+	j := JE{Code: code, error: error, message: message, time: time.Now().UTC(), DisplayTime: true}
+	if len(domain) != 0 {
+		j.Domain = domain[0]
+	}
+	return j
+}
+
+// Error generates a string that neatly formats the contents of the JE struct.
+// JSONError satisfies the error interface. Useful with panic().
 func (j JE) Error() string {
 	finalString := fmt.Sprintf("[code]: %d", j.Code)
 
@@ -179,6 +212,10 @@ func (j JE) Error() string {
 
 	if j.Domain != "" {
 		finalString = finalString + fmt.Sprintf(" [domain]: %s", j.Domain)
+	}
+
+	if j.DisplayTime {
+		finalString = finalString + fmt.Sprintf(" [time]: %d", j.time.UnixNano())
 	}
 
 	return finalString

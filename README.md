@@ -6,10 +6,11 @@ This package is for adding some structure to your error messages. This makes err
 It utilizes the fact that built-in [`type error`](http://golang.org/pkg/builtin/#error) is actually an `interface.`
 
 
+The package also contains the ErrorCollection struct which allows for accumulation of multiple errors.
+It is safe to use from multiple concurrent goroutines unlike other comparable packages.
 
-**REFER TO GODOC FOR DOCUMENTATION FOR ErrorCollection capabilities**
+Please **Star** this package so I can add it to [awesome-go](https://github.com/avelino/awesome-go).
 
-ErrorCollection allows for accumulation of multiple errors from concurrent go-routines.
 
 
 Install
@@ -79,15 +80,16 @@ func realSquareRoot(n float64) (float64, error) {
 func main() {
 
 	s, err := realSquareRoot(12.0)
-	if err == nil {
-		//s is Valid answer
-	} else {
+	if err != nil {
 		if err.(e.JE).Code == 1 {
 			//Square root of negative number
 		} else {
 			//Unknown error
 		}
+		return
 	}
+
+	//s is Valid answer
 }
 
 
