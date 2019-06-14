@@ -46,6 +46,11 @@ func NewErrorCollection(dup ...DuplicatationOptions) *ErrorCollection {
 
 // Append an error to the error collection without locking
 func (ec *ErrorCollection) addError(err error) {
+	
+	if err == nil {
+		return
+	}
+	
 	if ec.DuplicatationOptions != AllowDuplicates {
 		//Don't append if err is a duplicate
 		for i, containedErr := range ec.Errors {
